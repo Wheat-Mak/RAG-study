@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>知识文档上传</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/assets/common.css">
+  <script src="/assets/workbench.js" defer></script>
+</head>
+<body>
+  <div class="app-page">
+    <header class="app-nav">
+      <div class="app-brand"><span class="brand-mark" aria-hidden="true">RAG</span><h1>知识文档上传</h1></div>
+      <nav class="app-nav-links" aria-label="页面导航">
+        <a class="nav-link is-active" aria-current="page" href="/upload.html">上传文档</a>
+        <a class="nav-link" href="/document.html">文档管理</a>
+        <a class="nav-link" href="/chat.html">AI 对话</a>
+        <a class="nav-link" href="/eval-report.html">RAG 评测</a>
+      </nav>
+    </header>
+    <main class="app-main">
+      <div id="upload-grid" class="upload-grid">
+        <section class="panel">
+          <h2 class="panel-title">上传文件</h2>
+          <form id="upload-form">
+            <div class="form-group">
+              <label for="upload-file">选择文件 *</label>
+              <div class="file-drop">
+                <input id="upload-file" name="file" type="file" accept=".md,.txt,.pdf,.docx,.csv,.xlsx" required>
+                <div class="file-drop-icon" aria-hidden="true">+</div>
+                <div>点击或拖拽文件到此处</div>
+                <p id="file-name" class="file-drop-name"></p>
+              </div>
+              <p class="hint">支持 MD、TXT、PDF、DOCX、CSV、XLSX，单文件最多 10 MiB。</p>
+            </div>
+            <button class="btn btn-primary btn-block" type="submit">开始上传</button>
+          </form>
+          <progress id="upload-progress" class="upload-progress" aria-label="正在入库" hidden></progress>
+          <p id="upload-status" class="notice" role="status"></p>
+          <div id="upload-result" class="result" hidden></div>
+        </section>
+        <section id="split-panel" class="panel" hidden>
+          <h2 class="panel-title">文档切片设置</h2>
+          <dl class="split-settings">
+            <dt>Markdown / TXT</dt><dd>切片长度 256 字符，重叠 50 字符</dd>
+            <dt>CSV / XLSX</dt><dd>按 700 字符预算合并相邻数据行</dd>
+          </dl>
+        </section>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

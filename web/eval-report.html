@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RAG 评测</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/assets/common.css">
+  <script src="/assets/workbench.js" defer></script>
+  <script src="/assets/batch-evaluation.js" defer></script>
+</head>
+<body class="eval-page">
+  <main>
+    <header class="card">
+      <div class="summary-header"><h1>RAG 评测</h1><a href="/chat.html">返回 AI 对话</a></div>
+      <nav class="tabs" aria-label="评测页面">
+        <button id="run-tab" class="tab-btn active" type="button" aria-pressed="true" aria-controls="panel-run">发起评测</button>
+        <button id="runs-tab" class="tab-btn" type="button" aria-pressed="false" aria-controls="panel-runs">历史列表</button>
+        <button id="report-tab" class="tab-btn" type="button" aria-pressed="false" aria-controls="panel-report">报告详情</button>
+      </nav>
+    </header>
+    <section id="panel-run" class="card">
+      <h2>数据集</h2>
+      <form id="dataset-form" class="form-grid">
+        <div class="form-field"><label for="dataset-file">上传评测集（.jsonl）</label><input id="dataset-file" name="file" type="file" accept=".jsonl" required></div>
+        <div class="toolbar dataset-upload"><button class="btn btn-primary" type="submit">上传评测集</button></div>
+      </form>
+      <p class="hint">每行一题，最多 100 题。分块标签使用「文档 ID#分段序号」。</p>
+      <p id="dataset-status" class="notice" role="status"></p>
+      <h2 class="config-heading">评测配置</h2>
+      <form id="batch-form">
+        <div class="form-grid">
+          <div class="form-field"><label for="batch-dataset">数据集</label><select id="batch-dataset" name="dataset_id" required><option value="">正在读取评测集…</option></select><a id="dataset-download" hidden>下载 JSONL</a></div>
+          <div class="form-field"><label for="batch-mode">检索方式</label><select id="batch-mode" name="mode"><option value="hybrid">混合检索 + 重排</option><option value="vector">向量检索</option><option value="keyword">关键词检索</option></select></div>
+          <div class="form-field"><label for="batch-k">Top K</label><input id="batch-k" name="k" type="number" min="1" max="10" value="5" required></div>
+        </div>
+        <div class="toolbar">
+          <label><input name="generate" type="checkbox" checked> 生成回答</label>
+          <label><input name="judge" type="checkbox" checked> LLM 评分</label>
+          <label><input name="expand_parents" type="checkbox" checked> 扩展父块上下文</label>
+          <button class="btn btn-primary" type="submit">开始评测</button>
+        </div>
+        <p class="hint">混合检索并启用 LLM 评分时运行八项评测。每项均分按该项有效题数计算。</p>
+        <details class="config-heading">
+          <summary>指标口径</summary>
+          <p class="hint">向量、BM25、RRF 截尾后和重排 Top K 分别按标准分块 ID 计算召回率。上下文精确率按 Top K 的命中名次加权。单路模式下另一分支记为跳过。</p>
+          <p class="hint">LLM 评分覆盖必要句子或表格行的比例、答案事实得到证据支持的比例，以及原问题与反向问题的向量相似度。标准答案供人工对照。</p>
+        </details>
+        <p id="batch-status" class="notice" role="status"></p>
+      </form>
+      <details class="config-heading" id="single-evaluation">
+      <summary>单题评测</summary>
+      <h2>评测配置</h2>
+      <form id="evaluate-form">
+        <div class="form-field"><label for="eval-query">问题</label><textarea id="eval-query" name="query" rows="3" maxlength="4096" required placeholder="输入本次要评测的问题"></textarea></div>
+        <div class="form-grid">
+          <div class="form-field"><label for="eval-mode">检索方式</label><select id="eval-mode" name="mode"><option value="hybrid">混合检索 + 重排</option><option value="vector">向量检索</option><option value="keyword">关键词检索</option></select></div>
+          <div class="form-field"><label for="eval-k">Top K</label><input id="eval-k" name="k" type="number" min="1" max="10" value="5" required></div>
+          <div class="form-field"><label for="eval-doc">限定文档</label><input id="eval-doc" name="document_id" list="document-options" placeholder="留空检索全部文档"></div>
+        </div>
+        <div class="form-grid">
+          <div class="form-field"><label for="truth-docs">标准文档 ID</label><textarea id="truth-docs" name="ground_truth_document_ids" rows="2" spellcheck="false" placeholder="每行一个文档 ID"></textarea></div>
+          <div class="form-field"><label for="truth-chunks">标准分块 ID</label><textarea id="truth-chunks" name="ground_truth_chunk_ids" rows="2" spellcheck="false" placeholder="每行一个 文档ID#分段序号"></textarea></div>
+        </div>
+        <p class="hint">优先使用分块标签。可从文档管理或对话证据添加标签。</p>
+        <div class="form-field form-group"><label for="reference-answer">标准答案</label><textarea id="reference-answer" name="reference_answer" rows="2" maxlength="8000" placeholder="填写用于人工对照的标准答案（选填）"></textarea></div>
+        <div class="toolbar">
+          <label><input name="generate" type="checkbox"> 生成回答</label>
+          <label><input name="judge" type="checkbox"> LLM 评分</label>
+          <button class="btn btn-primary" type="submit">运行单题评测</button>
+        </div>
+        <p id="evaluate-status" class="notice" role="status"></p>
+      </form>
+      </details>
+    </section>
+    <section id="panel-runs" class="card" hidden>
+      <div class="summary-header"><h2>评测运行列表</h2><button id="refresh-runs" class="btn btn-secondary" type="button">刷新列表</button></div>
+      <p id="runs-status" class="notice" role="status"></p>
+      <div class="table-wrap"><table><thead><tr><th>运行 ID</th><th>数据集</th><th>状态</th><th>进度</th><th>检索方式</th><th>指标版本</th><th>创建时间</th></tr></thead><tbody id="run-rows"></tbody></table></div>
+      <div class="pagination"><button id="runs-prev" class="btn btn-secondary" type="button" disabled>上一页</button><span id="runs-page">1 / 1</span><button id="runs-next" class="btn btn-secondary" type="button" disabled>下一页</button></div>
+    </section>
+    <section id="panel-report" hidden>
+      <p id="report-status" class="notice" role="status"></p>
+      <p id="report-empty" class="card muted">请先发起一次评测。</p>
+      <div id="evaluate-result" class="stack"></div>
+      <div id="batch-report" hidden>
+        <section class="card">
+          <div class="summary-header"><h2>汇总指标</h2><span id="batch-run-id" class="muted"></span></div>
+          <p id="batch-progress-text" class="notice" role="status"></p>
+          <progress id="batch-progress" value="0" max="1" aria-label="已处理题数"></progress>
+          <div id="batch-summary" class="stack"></div>
+          <details><summary>运行配置与语料代次</summary><pre id="batch-manifest" class="excerpt"></pre></details>
+        </section>
+        <section class="card" id="batch-cases" hidden>
+          <h2>用例明细</h2>
+          <div id="batch-case-items" class="stack"></div>
+          <div class="pagination"><button id="cases-prev" class="btn btn-secondary" type="button" disabled>上一页</button><span id="cases-page">1 / 1</span><button id="cases-next" class="btn btn-secondary" type="button" disabled>下一页</button></div>
+        </section>
+      </div>
+    </section>
+    <datalist id="document-options"></datalist>
+  </main>
+</body>
+</html>

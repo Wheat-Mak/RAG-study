@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI 对话助手</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/assets/common.css">
+  <link rel="stylesheet" href="/assets/chat.css">
+  <script src="/assets/workbench.js" defer></script>
+</head>
+<body>
+  <div class="app-page app-page--fill">
+    <header class="app-nav">
+      <div class="app-brand"><span class="brand-mark" aria-hidden="true">RAG</span><h1>AI 对话助手</h1></div>
+      <nav class="app-nav-links" aria-label="页面导航">
+        <a class="nav-link" href="/upload.html">上传文档</a>
+        <a class="nav-link" href="/document.html">文档管理</a>
+        <a class="nav-link is-active" aria-current="page" href="/chat.html">AI 对话</a>
+        <a class="nav-link" href="/eval-report.html">RAG 评测</a>
+      </nav>
+    </header>
+    <main class="app-main app-main--flush">
+      <div class="chat-layout">
+        <aside class="sidebar">
+          <div class="sidebar-header"><button class="btn btn-primary btn-block" id="new-chat" type="button">新对话</button></div>
+          <div class="conversation-list" id="conversation-title">暂无对话记录</div>
+        </aside>
+        <div class="chat-main">
+          <div class="messages-container" id="messages" role="log" aria-label="对话消息">
+            <div class="welcome-message" id="welcome-message"><h2>欢迎使用 AI 对话助手</h2><p>输入您的问题，开始与 AI 交流吧！</p></div>
+          </div>
+          <form id="chat-form" class="input-area">
+            <div class="input-wrapper">
+              <textarea name="query" aria-label="问题" rows="1" maxlength="4096" required placeholder="输入您的问题…"></textarea>
+              <button class="btn btn-primary" type="submit">发送</button>
+            </div>
+            <p id="chat-status" class="notice" role="status"></p>
+            <details class="search-settings">
+              <summary>检索选项</summary>
+              <div class="form-grid">
+                <label>检索方式<select name="mode"><option value="hybrid">混合检索</option><option value="vector">向量检索</option><option value="keyword">关键词检索</option></select></label>
+                <label>Top K<input name="k" type="number" min="1" max="10" value="5" required></label>
+                <label>限定文档<input name="document_id" list="document-options" placeholder="留空检索全部文档"></label>
+              </div>
+              <p class="hint">每次回答使用本轮问题与检索证据。</p>
+            </details>
+          </form>
+          <datalist id="document-options"></datalist>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

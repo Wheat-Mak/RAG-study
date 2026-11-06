@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>文档管理</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/assets/common.css">
+  <script src="/assets/workbench.js" defer></script>
+</head>
+<body>
+  <div class="app-page">
+    <header class="app-nav">
+      <div class="app-brand"><span class="brand-mark" aria-hidden="true">RAG</span><h1>文档管理</h1></div>
+      <nav class="app-nav-links" aria-label="页面导航">
+        <a class="nav-link" href="/upload.html">上传文档</a>
+        <a class="nav-link is-active" aria-current="page" href="/document.html">文档管理</a>
+        <a class="nav-link" href="/chat.html">AI 对话</a>
+        <a class="nav-link" href="/eval-report.html">RAG 评测</a>
+      </nav>
+    </header>
+    <main class="app-main">
+      <form id="document-filter" class="filter-bar">
+        <div class="filter-item"><label for="filter-title">文档标题</label><input id="filter-title" name="title" maxlength="255" placeholder="模糊搜索"></div>
+        <div class="filter-item"><label for="filter-status">状态</label><select id="filter-status" name="status"><option value="">全部</option><option value="pending_index">待入库</option><option value="indexed">向量存储完成</option></select></div>
+        <button class="btn btn-primary" type="submit">搜索</button>
+        <button class="btn btn-success" type="reset">重置</button>
+      </form>
+      <p id="catalog-status" class="toolbar-meta" role="status">正在读取文档…</p>
+      <div class="table-wrap">
+        <table><thead><tr><th>ID</th><th>文档标题</th><th>状态</th><th>分段</th><th>向量</th><th>操作</th></tr></thead><tbody id="document-rows"></tbody></table>
+      </div>
+      <div class="pagination"><button class="btn btn-secondary" id="docs-prev" type="button" disabled>上一页</button><span id="docs-page" class="page-info">1 / 1</span><button class="btn btn-secondary" id="docs-next" type="button" disabled>下一页</button></div>
+    </main>
+  </div>
+  <dialog id="chunk-panel" class="modal" aria-labelledby="chunk-title">
+    <header class="modal-header"><h2 id="chunk-title">分段列表</h2><form method="dialog"><button class="modal-close" aria-label="关闭" type="submit">×</button></form></header>
+    <div class="modal-body">
+      <p id="chunk-status" class="notice" role="status"></p>
+      <div id="chunk-items" class="stack"></div>
+      <div class="pagination"><button class="btn btn-secondary" id="chunks-prev" type="button" disabled>上一页</button><span id="chunks-page" class="page-info">1 / 1</span><button class="btn btn-secondary" id="chunks-next" type="button" disabled>下一页</button></div>
+    </div>
+  </dialog>
+</body>
+</html>
