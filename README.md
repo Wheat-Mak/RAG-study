@@ -8,16 +8,6 @@
 
 ### 评测指标
 
-<style>
-  #evaluation-metrics {
-    border-collapse: collapse;
-  }
-  #evaluation-metrics th,
-  #evaluation-metrics td {
-    border: 1px solid #4f4f4f;
-  }
-</style>
-
 <table id="evaluation-metrics" border="1" cellspacing="0" cellpadding="6">
   <thead>
     <tr>
